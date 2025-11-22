@@ -1,10 +1,10 @@
 const CACHE_NAME = 'language-tutor-v1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/index.css',
-  '/index.tsx',
-  '/manifest.json'
+  '/language-tutor/',
+  '/language-tutor/index.html',
+  '/language-tutor/index.css',
+  '/language-tutor/index.tsx',
+  '/language-tutor/manifest.json'
 ];
 
 // Install Service Worker
@@ -32,7 +32,6 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch Strategy: Stale-While-Revalidate
-// Try to serve from cache, but update cache in background for next time
 self.addEventListener('fetch', (event) => {
   // Only handle http/https requests
   if (!event.request.url.startsWith('http')) return;
@@ -40,7 +39,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
-        // Check if we received a valid response
         if (
           !networkResponse ||
           networkResponse.status !== 200 ||
@@ -49,7 +47,6 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         }
 
-        // Clone the response because it's a stream and can only be consumed once
         const responseToCache = networkResponse.clone();
 
         caches.open(CACHE_NAME).then((cache) => {
@@ -58,8 +55,7 @@ self.addEventListener('fetch', (event) => {
 
         return networkResponse;
       }).catch(() => {
-        // If fetch fails (offline), strictly return cached response if available
-        // If not in cache and offline, we can't do much for dynamic content
+        // Fallback logic if needed
       });
 
       return cachedResponse || fetchPromise;

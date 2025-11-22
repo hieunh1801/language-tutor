@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Sparkles, Volume2, Library, RotateCcw, Home } from 'lucide-react';
 import { ChatMessage, Sender } from '../../types';
@@ -24,11 +25,11 @@ export const LessonCompletion: React.FC<LessonCompletionProps> = ({
   onHome,
   onReviewVocab,
   onRestart,
-  nativeLang = 'vi'
+  nativeLang = 'vi' as NativeLanguage
 }) => {
   return (
     <div className="h-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4 font-sans transition-colors">
-      <div className="w-full bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 text-center animate-in zoom-in duration-300 flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 text-center animate-in zoom-in duration-300 flex flex-col max-h-[90vh]">
         <div className="shrink-0">
           <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
             <Sparkles size={40} className="text-green-600 dark:text-green-400" />

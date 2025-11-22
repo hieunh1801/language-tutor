@@ -106,12 +106,6 @@ const App: React.FC = () => {
       lessonType: selectedLesson.type || 'Conversation' 
     });
     setConversationPlan(selectedLesson.turns);
-    // Hack: set current lesson ID manually since we aren't using initializeLesson
-    // Note: In a cleaner world, initializeLesson would handle this too, 
-    // but we want to jump straight to READING state without setting messages.
-    // We'll just piggyback on useGameState's internal state setters exposed.
-    // OR better: let's just use the useGameState config which is exposed.
-    
     setAppState(AppState.READING);
     setSelectedLesson(null);
   };
@@ -348,7 +342,6 @@ const App: React.FC = () => {
   const customLessonIds = customLessons.map(l => l.id);
 
   const getReadingLesson = (): Lesson => {
-      // Reconstruct a lesson object for ReadMode
       return {
           id: currentLessonId || 'temp-id',
           language: config?.targetLang || 'ko',
@@ -363,8 +356,12 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-slate-50 dark:bg-slate-900 flex justify-center overflow-hidden font-sans transition-colors duration-200">
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 h-full flex flex-col relative shadow-2xl transition-colors duration-200">
+    // Outer Container: Use white/dark background on mobile to match inner content, removing the "frame" look
+    <div className="min-h-screen w-full bg-white dark:bg-slate-900 md:bg-slate-100 md:dark:bg-slate-950 flex items-center justify-center p-0 md:p-4 transition-colors duration-200 font-sans">
+      
+      {/* Main App Window */}
+      {/* Use h-[100dvh] for mobile to fit dynamic viewport perfectly. Remove shadow on mobile. */}
+      <div className="w-full h-[100dvh] md:h-[95vh] md:max-w-7xl bg-white dark:bg-slate-900 flex flex-col relative shadow-none md:shadow-2xl transition-all duration-200 md:rounded-3xl md:border md:border-slate-200 dark:md:border-slate-800 overflow-hidden">
         
         {/* --- MODALS --- */}
         

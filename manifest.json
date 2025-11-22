@@ -1,7 +1,8 @@
 {
   "name": "Language Tutor - Học ngoại ngữ cùng AI",
   "short_name": "Language Tutor",
-  "start_url": "/",
+  "start_url": "/language-tutor/",
+  "scope": "/language-tutor/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",

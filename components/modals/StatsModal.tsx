@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { BarChart3, X, Flame, Trophy, Target, TrendingUp, Book, BrainCircuit } from 'lucide-react';
 import { LessonProgress, SavedSession, VocabularyItem, Lesson } from '../../types';
@@ -17,10 +18,10 @@ export const StatsModal: React.FC<StatsModalProps> = ({
   
   // Calculate Stats
   const stats = useMemo(() => {
-    const uniqueDates = new Set(
+    const uniqueDates = new Set<number>(
       sessions.map(s => new Date(s.timestamp).setHours(0, 0, 0, 0))
     );
-    Object.values(progress).forEach(p => {
+    Object.values(progress).forEach((p: LessonProgress) => {
         uniqueDates.add(new Date(p.lastStudied).setHours(0,0,0,0));
     });
 
@@ -61,7 +62,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
     });
 
     const srsDistribution = [0, 0, 0, 0, 0, 0]; 
-    Object.values(progress).forEach(p => {
+    Object.values(progress).forEach((p: LessonProgress) => {
       const level = Math.min(p.srsLevel, 5);
       srsDistribution[level]++;
     });

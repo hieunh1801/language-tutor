@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X, BookOpenText, MessageCircle, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { ChatMessage, ConversationConfig, PuzzleData, Sender } from '../../types';
@@ -31,15 +32,14 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
   const [showReadingContext, setShowReadingContext] = useState(false);
   const [showTranslation, setShowTranslation] = useState(true);
 
-  // Auto-play audio when the turn changes (for Conversation questions)
   useEffect(() => {
     if (config.lessonType === 'Conversation' && currentPuzzle?.question) {
         const timer = setTimeout(() => {
             onPlayAudio(currentPuzzle.question);
-        }, 600); // Slight delay to allow UI transition
+        }, 600);
         return () => clearTimeout(timer);
     }
-  }, [currentTurnIndex, currentPuzzle, config.lessonType]); // Intentionally omitted onPlayAudio to avoid loops
+  }, [currentTurnIndex, currentPuzzle, config.lessonType]);
 
   return (
     <div className="flex flex-col h-full relative bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
@@ -53,7 +53,7 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
              {isReadingMode ? <BookOpenText size={20} /> : <MessageCircle size={20} />}
           </div>
           <div className="flex flex-col">
-            <h1 className="font-bold text-slate-900 dark:text-white text-sm md:text-base max-w-[150px] truncate">{config.topic}</h1>
+            <h1 className="font-bold text-slate-900 dark:text-white text-sm md:text-base max-w-[150px] md:max-w-md truncate">{config.topic}</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
               {config.difficulty === 'Beginner' ? 'Sơ cấp' : config.difficulty === 'Intermediate' ? 'Trung cấp' : 'Cao cấp'}
               <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-500"></span>
@@ -66,13 +66,11 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
         </div>
       </header>
 
-      {/* Content Area */}
-      <div className="flex-1 flex flex-col relative overflow-hidden">
+      {/* Content Area - Centered Container for Desktop */}
+      <div className="flex-1 flex flex-col relative overflow-hidden w-full max-w-5xl mx-auto bg-slate-50 dark:bg-slate-900 shadow-none md:shadow-sm md:border-x border-slate-100 dark:border-slate-800">
         {isReadingMode ? (
-          // READING MODE: Split Screen Layout
+          // READING MODE
           <div className="flex flex-col h-full">
-            
-            {/* Optional: Collapsible Context (History) */}
             <div className={`bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 transition-all duration-300 ease-in-out overflow-hidden ${showReadingContext ? 'max-h-40' : 'max-h-0'}`}>
                <div className="p-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   {messages.length > 0 ? messages.filter(m => m.sender === Sender.USER).map((m, i) => (
@@ -89,7 +87,6 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
                {showReadingContext ? <><ChevronUp size={12} /> Ẩn văn bản đã học</> : <><ChevronDown size={12} /> Xem văn bản đã học</>}
             </button>
 
-            {/* TOP HALF: Target Translation (The Prompt) */}
             <div className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-b from-indigo-50 to-white dark:from-slate-800 dark:to-slate-900 text-center relative overflow-y-auto transition-colors">
                <button 
                    onClick={() => setShowTranslation(!showTranslation)}
@@ -101,8 +98,8 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
 
                <div className="text-xs font-bold text-indigo-400 dark:text-indigo-300 uppercase tracking-widest mb-3 shrink-0">Dịch câu sau sang tiếng {config.targetLang === 'ko' ? 'Hàn' : config.targetLang === 'en' ? 'Anh' : 'Nhật'}</div>
                {currentPuzzle ? (
-                 <div className={`transition-all duration-300 w-full max-w-2xl ${showTranslation ? 'opacity-100 blur-0' : 'opacity-30 blur-md select-none'}`}>
-                    <h2 className="text-lg md:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-relaxed animate-in zoom-in duration-300 px-2">
+                 <div className={`transition-all duration-300 w-full max-w-3xl ${showTranslation ? 'opacity-100 blur-0' : 'opacity-30 blur-md select-none'}`}>
+                    <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-slate-800 dark:text-slate-100 leading-relaxed animate-in zoom-in duration-300 px-2">
                         "{currentPuzzle.targetAnswerTranslation}"
                     </h2>
                  </div>
@@ -113,7 +110,7 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
             
           </div>
         ) : (
-          // CONVERSATION MODE: Chat History
+          // CONVERSATION MODE
           <div className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/50">
             <ChatMessageList
               messages={messages}
@@ -126,20 +123,22 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
 
       {/* BOTTOM HALF: Interaction Area (Puzzle) */}
       <div className={`${isReadingMode ? 'h-1/2 border-t-4 border-indigo-100 dark:border-indigo-900/30' : 'h-auto border-t border-slate-100 dark:border-slate-700'} bg-white dark:bg-slate-800 p-4 shrink-0 z-20 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] flex flex-col justify-center transition-colors`}>
-        {currentPuzzle ? (
-          <WordPuzzle
-            key={`puzzle-${currentTurnIndex}`}
-            data={currentPuzzle}
-            onComplete={onPuzzleComplete}
-            isLastTurn={currentTurnIndex >= totalTurns - 1}
-            prompt={isReadingMode ? undefined : undefined} 
-            onPlayAudio={onPlayAudio}
-          />
-        ) : (
-          <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
-            Đang tải câu hỏi...
-          </div>
-        )}
+        <div className="w-full max-w-5xl mx-auto">
+            {currentPuzzle ? (
+            <WordPuzzle
+                key={`puzzle-${currentTurnIndex}`}
+                data={currentPuzzle}
+                onComplete={onPuzzleComplete}
+                isLastTurn={currentTurnIndex >= totalTurns - 1}
+                prompt={isReadingMode ? undefined : undefined} 
+                onPlayAudio={onPlayAudio}
+            />
+            ) : (
+            <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
+                Đang tải câu hỏi...
+            </div>
+            )}
+        </div>
       </div>
     </div>
   );

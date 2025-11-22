@@ -14,10 +14,10 @@ root.render(
   </React.StrictMode>
 );
 
-// Register PWA Service Worker
+// Register PWA Service Worker with sub-path scope
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('/language-tutor/service-worker.js', { scope: '/language-tutor/' })
       .then((registration) => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
       })
