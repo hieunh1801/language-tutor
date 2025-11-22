@@ -1,7 +1,10 @@
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile';
-const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
 const BACKUP_FILE_NAME = 'ai_tutor_backup.json';
+
+// TODO: Thay thế bằng Client ID thực tế của bạn từ Google Cloud Console
+// Bạn cần vào console.cloud.google.com -> APIs & Services -> Credentials -> Create Credentials -> OAuth Client ID
+export const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com';
 
 export interface GoogleUserProfile {
   name: string;
@@ -12,25 +15,28 @@ export interface GoogleUserProfile {
 export class GoogleDriveService {
   private tokenClient: any;
   private accessToken: string | null = null;
-  private clientId: string = '';
   private tokenExpiration: number = 0;
 
   constructor() {}
 
-  public init(clientId: string) {
-    this.clientId = clientId;
+  public init() {
+    // Check if script is loaded
     if ((window as any).google && !this.tokenClient) {
-        this.tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
-            client_id: clientId,
-            scope: SCOPES,
-            callback: (tokenResponse: any) => {
-                if (tokenResponse && tokenResponse.access_token) {
-                    this.accessToken = tokenResponse.access_token;
-                    // Auto-expire estimate (1 hour)
-                    this.tokenExpiration = Date.now() + (tokenResponse.expires_in || 3599) * 1000;
-                }
-            },
-        });
+        try {
+            this.tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: SCOPES,
+                callback: (tokenResponse: any) => {
+                    if (tokenResponse && tokenResponse.access_token) {
+                        this.accessToken = tokenResponse.access_token;
+                        // Auto-expire estimate (1 hour)
+                        this.tokenExpiration = Date.now() + (tokenResponse.expires_in || 3599) * 1000;
+                    }
+                },
+            });
+        } catch (e) {
+            console.error("GSI Init Error:", e);
+        }
     }
   }
 
@@ -40,12 +46,14 @@ export class GoogleDriveService {
 
   public async login(): Promise<string> {
       return new Promise((resolve, reject) => {
+        // Ensure init is called
         if (!this.tokenClient) {
-             // Try initializing if client ID is present
-             if(this.clientId && (window as any).google) {
-                 this.init(this.clientId);
-             } else {
-                 reject(new Error("Google Identity Service chưa sẵn sàng. Hãy kiểm tra Client ID trong cài đặt."));
+             if((window as any).google) {
+                 this.init();
+             }
+             
+             if (!this.tokenClient) {
+                 reject(new Error("Dịch vụ Google chưa sẵn sàng. Vui lòng tải lại trang hoặc kiểm tra kết nối mạng."));
                  return;
              }
         }
@@ -53,6 +61,7 @@ export class GoogleDriveService {
         // Override callback for the login flow
         this.tokenClient.callback = (resp: any) => {
             if (resp.error) {
+                console.error("Login Error", resp);
                 reject(resp);
             } else {
                 this.accessToken = resp.access_token;

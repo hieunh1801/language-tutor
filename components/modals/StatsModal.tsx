@@ -59,7 +59,16 @@ export const StatsModal: React.FC<StatsModalProps> = ({
     completedLessonIds.forEach(id => {
       const lesson = allLessons.find(l => l.id === id);
       if (lesson) {
-        levelCounts[lesson.level]++;
+        // Map specific levels (1-6) to broad categories
+        const lvl = lesson.level;
+        if (lvl === 'Level 3' || lvl === 'Level 4' || lvl === 'Intermediate') {
+            levelCounts.Intermediate++;
+        } else if (lvl === 'Level 5' || lvl === 'Level 6' || lvl === 'Advanced') {
+            levelCounts.Advanced++;
+        } else {
+            // Default: Level 1, Level 2, Beginner, or undefined
+            levelCounts.Beginner++;
+        }
       }
     });
 
@@ -143,7 +152,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
             <div className="space-y-4">
                 <div>
                     <div className="flex justify-between text-xs mb-1.5">
-                        <span className="font-medium text-slate-600">Sơ cấp (Beginner)</span>
+                        <span className="font-medium text-slate-600">Sơ cấp (Lv 1-2)</span>
                         <span className="font-bold text-slate-800">{stats.levelCounts.Beginner} bài</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2.5">
@@ -152,7 +161,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                 </div>
                 <div>
                     <div className="flex justify-between text-xs mb-1.5">
-                        <span className="font-medium text-slate-600">Trung cấp (Intermediate)</span>
+                        <span className="font-medium text-slate-600">Trung cấp (Lv 3-4)</span>
                         <span className="font-bold text-slate-800">{stats.levelCounts.Intermediate} bài</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2.5">
@@ -161,7 +170,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                 </div>
                 <div>
                     <div className="flex justify-between text-xs mb-1.5">
-                        <span className="font-medium text-slate-600">Cao cấp (Advanced)</span>
+                        <span className="font-medium text-slate-600">Cao cấp (Lv 5-6)</span>
                         <span className="font-bold text-slate-800">{stats.levelCounts.Advanced} bài</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2.5">

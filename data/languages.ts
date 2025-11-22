@@ -1,4 +1,5 @@
 
+
 export type NativeLanguage = 'vi' | 'en';
 export type TargetLanguage = 'ko' | 'en' | 'ja' | 'zh';
 
@@ -16,7 +17,7 @@ export const TARGET_LANGUAGES: { code: TargetLanguage; label: string; flag: stri
 
 export const TRANSLATIONS = {
   vi: {
-    app_name: "AI Tutor",
+    app_name: "Language Tutor",
     subtitle: "Luyện phản xạ & Space Repetition",
     create_lesson: "Tạo bài",
     stats: "Thống kê",
@@ -49,7 +50,7 @@ export const TRANSLATIONS = {
     incorrect: "Chưa chính xác. Hãy thử lại!",
     skip: "Bỏ qua",
     backup: "Sao lưu & Đồng bộ",
-    backup_desc: "Xuất nhập file JSON hoặc đồng bộ Google Drive.",
+    backup_desc: "Xuất nhập file JSON hoặc đồng bộ Cloud.",
     export_data: "Xuất dữ liệu (File)",
     import_data: "Nhập dữ liệu (File)",
     import_warning: "Cảnh báo: Hành động này sẽ ghi đè dữ liệu hiện tại.",
@@ -98,21 +99,18 @@ export const TRANSLATIONS = {
     show_trans: "Hiện dịch",
     hide_trans: "Ẩn dịch",
     
-    // Google Drive
-    google_drive: "Đồng bộ Google Drive",
-    client_id: "Cấu hình Client ID",
-    client_id_placeholder: "Nhập Client ID...",
-    sync_upload: "Lưu lên Drive",
-    sync_download: "Tải từ Drive",
-    gdrive_help: "File backup sẽ tên là 'ai_tutor_backup.json'. Cần cấp quyền truy cập.",
-    login_google: "Đăng nhập Google",
-    logout_google: "Đăng xuất",
-    connected_as: "Đã kết nối:",
-    drive_config_title: "Cài đặt kết nối",
-    not_connected: "Chưa kết nối"
+    // Cloud Sync
+    cloud_sync: "Đồng bộ Cloud",
+    cloud_upload: "Upload lấy Link",
+    cloud_download: "Tải về từ Link",
+    cloud_help: "Upload sẽ tạo ra một đường dẫn (URL). Hãy lưu đường dẫn này để khôi phục dữ liệu sau này.",
+    uploading: "Đang tải lên...",
+    downloading: "Đang tải về...",
+    upload_success: "Upload thành công! Hãy copy link dưới đây:",
+    enter_url_placeholder: "Dán link Cloud vào đây..."
   },
   en: {
-    app_name: "AI Tutor",
+    app_name: "Language Tutor",
     subtitle: "Reflex & Space Repetition",
     create_lesson: "Create",
     stats: "Stats",
@@ -145,7 +143,7 @@ export const TRANSLATIONS = {
     incorrect: "Incorrect. Try again!",
     skip: "Skip",
     backup: "Backup & Sync",
-    backup_desc: "Export/Import JSON or sync with Google Drive.",
+    backup_desc: "Export/Import JSON or sync with Cloud.",
     export_data: "Export Data (File)",
     import_data: "Import Data (File)",
     import_warning: "Warning: This will overwrite current data.",
@@ -194,18 +192,15 @@ export const TRANSLATIONS = {
     show_trans: "Show Trans",
     hide_trans: "Hide Trans",
 
-    // Google Drive
-    google_drive: "Google Drive Sync",
-    client_id: "Configure Client ID",
-    client_id_placeholder: "Enter Client ID...",
-    sync_upload: "Save to Drive",
-    sync_download: "Load from Drive",
-    gdrive_help: "Backup file named 'ai_tutor_backup.json'. Requires permission.",
-    login_google: "Login with Google",
-    logout_google: "Logout",
-    connected_as: "Connected as:",
-    drive_config_title: "Connection Settings",
-    not_connected: "Not connected"
+    // Cloud Sync
+    cloud_sync: "Cloud Sync",
+    cloud_upload: "Upload & Get Link",
+    cloud_download: "Restore from Link",
+    cloud_help: "Uploading generates a URL. Save this URL to restore your data later.",
+    uploading: "Uploading...",
+    downloading: "Downloading...",
+    upload_success: "Upload success! Copy this link:",
+    enter_url_placeholder: "Paste Cloud link here..."
   }
 };
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AppState, ChatMessage, Sender, PuzzleData, ConversationConfig, SavedSession, VocabularyItem, Lesson, LessonProgress, LessonType, LessonLevel, LessonTone } from './types';
 import { generateLessonContent, explainGrammar } from './services/geminiService';
-import { GoogleDriveService } from './services/googleDriveService';
+import { ZeroService } from './services/zeroService';
 import { sampleLessons } from './data/sampleLessons';
 import { Loader2 } from 'lucide-react';
 import { NativeLanguage, TargetLanguage, t, TARGET_LANGUAGES } from './data/languages';
@@ -70,8 +70,8 @@ const App: React.FC = () => {
   const [explanationText, setExplanationText] = useState('');
   const [isExplaining, setIsExplaining] = useState(false);
 
-  // Drive Service
-  const driveService = useRef(new GoogleDriveService());
+  // Cloud Service
+  const cloudService = useRef(new ZeroService());
 
   useEffect(() => {
     try {
@@ -237,20 +237,15 @@ const App: React.FC = () => {
       reader.readAsText(file);
   };
 
-  const handleDriveUpload = async (clientId: string) => {
-      driveService.current.init(clientId);
+  const handleCloudUpload = async (): Promise<string> => {
       const data = collectBackupData();
-      await driveService.current.uploadBackup(data);
+      return await cloudService.current.upload(data);
   };
 
-  const handleDriveDownload = async (clientId: string) => {
-      driveService.current.init(clientId);
-      const data = await driveService.current.downloadBackup();
-      if (restoreBackupData(data)) {
-          alert(t(nativeLang, 'success_import'));
-          setShowBackup(false);
-      } else {
-           throw new Error("Dữ liệu từ Drive không hợp lệ");
+  const handleCloudDownload = async (url: string): Promise<void> => {
+      const data = await cloudService.current.download(url);
+      if (!restoreBackupData(data)) {
+           throw new Error("Dữ liệu tải về không hợp lệ");
       }
   };
 
@@ -691,8 +686,8 @@ const App: React.FC = () => {
           onClose={() => setShowBackup(false)}
           onExport={handleExportBackup}
           onImport={handleImportBackup}
-          onDriveUpload={handleDriveUpload}
-          onDriveDownload={handleDriveDownload}
+          onCloudUpload={handleCloudUpload}
+          onCloudDownload={handleCloudDownload}
           nativeLang={nativeLang}
         />
 
