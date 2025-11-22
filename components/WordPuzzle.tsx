@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { PuzzleData } from '../types';
 import { Check, ArrowRight, X, Wand2, RotateCcw } from 'lucide-react';
@@ -7,6 +8,7 @@ interface WordPuzzleProps {
   onComplete: (sentence: string) => void;
   isLastTurn: boolean;
   prompt?: string; 
+  onPlayAudio: (text: string) => void; // Added prop
 }
 
 interface WordItem {
@@ -14,7 +16,7 @@ interface WordItem {
   text: string;
 }
 
-export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLastTurn, prompt }) => {
+export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLastTurn, prompt, onPlayAudio }) => {
   const [availableWords, setAvailableWords] = useState<WordItem[]>([]);
   const [selectedWords, setSelectedWords] = useState<WordItem[]>([]);
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
@@ -75,12 +77,18 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
 
   const checkAnswer = () => {
     const formedSentence = selectedWords.map(w => w.text).join(' '); 
-    const normalize = (str: string) => str.replace(/[.,?!;:\s]/g, '');
+    
+    // Enhanced normalization to handle CJK punctuation (full-width)
+    // Remove standard ASCII punctuation/spaces AND CJK symbols/punctuation
+    const normalize = (str: string) => str.replace(/[.,?!;:\s\u3000-\u303F\uFF00-\uFFEF]/g, '');
+    
     const cleanFormed = normalize(formedSentence);
     const cleanTarget = normalize(data.targetAnswer);
 
     if (cleanFormed === cleanTarget) {
       setStatus('correct');
+      // Auto play the correct answer for reinforcement
+      onPlayAudio(data.targetAnswer);
     } else {
       setStatus('incorrect');
     }

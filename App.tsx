@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { AppState, ChatMessage, Sender, PuzzleData, ConversationConfig, SavedSession, VocabularyItem, Lesson, LessonProgress, LessonType, LessonLevel, LessonTone } from './types';
 import { generateLessonContent, explainGrammar } from './services/geminiService';
@@ -19,6 +20,8 @@ import { VocabModal } from './components/modals/VocabModal';
 import { StatsModal } from './components/modals/StatsModal';
 import { BackupModal } from './components/modals/BackupModal';
 import { LessonPreviewModal } from './components/modals/LessonPreviewModal';
+import { EditLessonModal } from './components/modals/EditLessonModal';
+import { ConfirmModal } from './components/modals/ConfirmModal';
 
 const STORAGE_KEY = 'korean_app_history_v1';
 const VOCAB_KEY = 'korean_app_vocab_v1';
@@ -55,6 +58,10 @@ const App: React.FC = () => {
   
   // New: Preview Modal State
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  // New: Edit Modal State
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  // New: Delete Confirm State
+  const [lessonToDelete, setLessonToDelete] = useState<string | null>(null);
 
   // Data State
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -389,19 +396,39 @@ const App: React.FC = () => {
 
   const handleDeleteLesson = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    const isCustom = customLessons.some(l => l.id === id);
-    if (!isCustom) return;
+    e.preventDefault();
+    setLessonToDelete(id);
+  };
 
-    if (window.confirm(t(nativeLang, 'delete_confirm'))) {
-      const updated = customLessons.filter(l => l.id !== id);
-      setCustomLessons(updated);
-      localStorage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(updated));
-      
-      const newProgress = { ...lessonProgress };
-      delete newProgress[id];
-      setLessonProgress(newProgress);
-      localStorage.setItem(PROGRESS_KEY, JSON.stringify(newProgress));
+  const confirmDelete = () => {
+    if (lessonToDelete) {
+        setCustomLessons(prev => {
+            const updated = prev.filter(l => l.id !== lessonToDelete);
+            localStorage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(updated));
+            return updated;
+        });
+        
+        setLessonProgress(prev => {
+            const newProgress = { ...prev };
+            delete newProgress[lessonToDelete];
+            localStorage.setItem(PROGRESS_KEY, JSON.stringify(newProgress));
+            return newProgress;
+        });
+        setLessonToDelete(null);
     }
+  };
+
+  const handleEditLesson = (e: React.MouseEvent, lesson: Lesson) => {
+    e.stopPropagation();
+    setEditingLesson(lesson);
+  };
+
+  const handleUpdateLesson = (id: string, updates: Partial<Lesson>) => {
+    const updated = customLessons.map(l => l.id === id ? { ...l, ...updates } : l);
+    setCustomLessons(updated);
+    localStorage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(updated));
+    setEditingLesson(null);
+    alert(t(nativeLang, 'success_update'));
   };
 
   const handleGenerateLesson = async (
@@ -586,6 +613,9 @@ const App: React.FC = () => {
     .sort((a, b) => lessonProgress[a.id].nextReview - lessonProgress[b.id].nextReview);
 
   const libraryList = allLessons.filter(lesson => !suggestionList.find(s => s.id === lesson.id));
+  
+  // Extract custom IDs for dashboard
+  const customLessonIds = customLessons.map(l => l.id);
 
   const getReadingLesson = (): Lesson => {
       const found = allLessons.find(l => l.id === currentLessonId);
@@ -669,6 +699,24 @@ const App: React.FC = () => {
             nativeLang={nativeLang}
         />
 
+        <EditLessonModal 
+            isOpen={!!editingLesson}
+            onClose={() => setEditingLesson(null)}
+            lesson={editingLesson}
+            onSave={handleUpdateLesson}
+            nativeLang={nativeLang}
+        />
+
+        <ConfirmModal 
+            isOpen={!!lessonToDelete}
+            onClose={() => setLessonToDelete(null)}
+            onConfirm={confirmDelete}
+            title={t(nativeLang, 'confirm_delete_title')}
+            message={t(nativeLang, 'delete_confirm')}
+            cancelText={t(nativeLang, 'cancel_btn')}
+            confirmText={t(nativeLang, 'delete_btn')}
+        />
+
         {/* Screens */}
         {appState === AppState.LOADING && (
           <div className="h-full flex flex-col items-center justify-center p-4 text-center dark:text-white">
@@ -688,10 +736,12 @@ const App: React.FC = () => {
             nativeLang={nativeLang}
             targetLang={targetLang}
             theme={theme}
+            customLessonIds={customLessonIds}
             onToggleTheme={toggleTheme}
             onStartLesson={handleSelectLesson}
             onCreateClick={() => setShowCreateModal(true)}
             onDeleteLesson={handleDeleteLesson}
+            onEditLesson={handleEditLesson}
             onOpenHistory={() => setShowHistory(true)}
             onOpenVocab={() => setShowVocab(true)}
             onOpenStats={() => setShowStats(true)}

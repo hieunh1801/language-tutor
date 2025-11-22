@@ -33,6 +33,8 @@ export const TRANSLATIONS = {
     due: "Đến hạn",
     wait: "Ôn sau {days} ngày",
     delete_confirm: "Bạn có chắc muốn xóa bài học này không?",
+    confirm_delete_title: "Xác nhận xóa",
+    delete_btn: "Xóa ngay",
     ui_lang: "Ngôn ngữ hiển thị",
     learning_lang: "Đang học",
     hello: "Xin chào",
@@ -89,6 +91,14 @@ export const TRANSLATIONS = {
     import_btn: "Nhập bài học",
     cancel_btn: "Hủy bỏ",
     
+    // Edit Lesson
+    edit_lesson: "Sửa bài học",
+    save_changes: "Lưu thay đổi",
+    lesson_title: "Tiêu đề bài học",
+    lesson_topic: "Chủ đề",
+    lesson_desc: "Mô tả ngắn",
+    success_update: "Cập nhật bài học thành công!",
+    
     preview_title: "Chọn chế độ học",
     mode_practice: "Luyện tập phản xạ",
     mode_practice_desc: "Ghép từ, trả lời câu hỏi và tương tác.",
@@ -126,6 +136,8 @@ export const TRANSLATIONS = {
     due: "Due",
     wait: "Wait {days} days",
     delete_confirm: "Are you sure you want to delete this lesson?",
+    confirm_delete_title: "Confirm Delete",
+    delete_btn: "Delete",
     ui_lang: "Interface Language",
     learning_lang: "Learning",
     hello: "Hello",
@@ -181,6 +193,14 @@ export const TRANSLATIONS = {
     manual_import: "Manual Input",
     import_btn: "Import Lesson",
     cancel_btn: "Cancel",
+    
+    // Edit Lesson
+    edit_lesson: "Edit Lesson",
+    save_changes: "Save Changes",
+    lesson_title: "Lesson Title",
+    lesson_topic: "Topic",
+    lesson_desc: "Description",
+    success_update: "Lesson updated successfully!",
 
     preview_title: "Select Mode",
     mode_practice: "Interactive Practice",
