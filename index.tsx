@@ -14,10 +14,12 @@ root.render(
   </React.StrictMode>
 );
 
-// Register PWA Service Worker with sub-path scope
+// Register PWA Service Worker with relative path to support any sub-path deployment
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/language-tutor/service-worker.js', { scope: '/language-tutor/' })
+    // Using './' ensures it resolves relative to the current page/path, 
+    // fixing issues when deployed at root vs /language-tutor/ vs preview domains
+    navigator.serviceWorker.register('./service-worker.js', { scope: './' })
       .then((registration) => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
       })

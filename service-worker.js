@@ -1,10 +1,11 @@
-const CACHE_NAME = 'language-tutor-v1';
+const CACHE_NAME = 'language-tutor-v2';
+// Use relative paths for caching so it works on any domain/subpath
 const ASSETS_TO_CACHE = [
-  '/language-tutor/',
-  '/language-tutor/index.html',
-  '/language-tutor/index.css',
-  '/language-tutor/index.tsx',
-  '/language-tutor/manifest.json'
+  './',
+  './index.html',
+  './index.css',
+  './index.tsx',
+  './manifest.json'
 ];
 
 // Install Service Worker
