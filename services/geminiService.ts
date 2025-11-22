@@ -3,11 +3,15 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { PuzzleData, LessonType, LessonLevel, LessonTone } from "../types";
 import { NativeLanguage, TargetLanguage, TARGET_LANGUAGES } from "../data/languages";
 
+// Fallback API Key if process.env.API_KEY is not set. 
+// Users can manually set this if not using the environment variable injection.
+const DEFAULT_API_KEY = "";
+
 // Helper to get AI instance with the latest key
 const getAI = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.API_KEY || DEFAULT_API_KEY;
   if (!apiKey) {
-    console.warn("API_KEY is missing in process.env");
+    console.warn("API_KEY is missing in process.env and DEFAULT_API_KEY is empty");
   }
   return new GoogleGenAI({ apiKey: apiKey || "" });
 };
