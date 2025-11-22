@@ -1,6 +1,8 @@
 
 import { NativeLanguage, TargetLanguage } from './data/languages';
 
+export type { NativeLanguage, TargetLanguage };
+
 declare global {
   interface AIStudio {
     hasSelectedApiKey: () => Promise<boolean>;
