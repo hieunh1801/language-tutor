@@ -1,6 +1,7 @@
 
+
 import React, { useState, useMemo } from 'react';
-import { GraduationCap, Plus, BrainCircuit, Zap, RefreshCcw, ChevronRight, Library, FolderOpen, Sparkles, Trash2, History, BookOpen, BarChart3, LayoutGrid, Globe, Database, MessageCircle, BookOpenText, Search, X, Filter, Clock, ChevronDown, Moon, Sun } from 'lucide-react';
+import { GraduationCap, Plus, BrainCircuit, Zap, RefreshCcw, ChevronRight, Library, FolderOpen, Sparkles, Trash2, History, BookOpen, BarChart3, LayoutGrid, Globe, Database, MessageCircle, BookOpenText, Search, X, Filter, Clock, ChevronDown, Moon, Sun, Pencil } from 'lucide-react';
 import { Lesson, LessonProgress, LessonLevel } from '../../types';
 import { NativeLanguage, TargetLanguage, t, TARGET_LANGUAGES } from '../../data/languages';
 
@@ -14,10 +15,12 @@ interface DashboardProps {
   nativeLang: NativeLanguage;
   targetLang: TargetLanguage;
   theme: 'light' | 'dark';
+  customLessonIds: string[];
   onToggleTheme: () => void;
   onStartLesson: (lesson: Lesson) => void;
   onCreateClick: () => void;
   onDeleteLesson: (e: React.MouseEvent, id: string) => void;
+  onEditLesson: (e: React.MouseEvent, lesson: Lesson) => void;
   onOpenHistory: () => void;
   onOpenVocab: () => void;
   onOpenStats: () => void;
@@ -37,10 +40,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
   nativeLang,
   targetLang,
   theme,
+  customLessonIds,
   onToggleTheme,
   onStartLesson,
   onCreateClick,
   onDeleteLesson,
+  onEditLesson,
   onOpenHistory,
   onOpenVocab,
   onOpenStats,
@@ -251,12 +256,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 const progress = lessonProgress[lesson.id];
                 const isReading = lesson.type === 'Reading';
                 const TypeIcon = isReading ? BookOpenText : MessageCircle;
+                const isCustom = customLessonIds.includes(lesson.id);
 
                 return (
-                  <button
+                  <div
                     key={lesson.id}
                     onClick={() => onStartLesson(lesson)}
-                    className="w-full p-4 bg-white dark:bg-slate-800 rounded-2xl border-l-4 border-l-indigo-500 shadow-sm hover:shadow-md transition-all text-left group relative overflow-hidden border-y border-r border-slate-100 dark:border-slate-700"
+                    className="w-full p-4 bg-white dark:bg-slate-800 rounded-2xl border-l-4 border-l-indigo-500 shadow-sm hover:shadow-md transition-all text-left group relative overflow-hidden border-y border-r border-slate-100 dark:border-slate-700 cursor-pointer"
                   >
                     <div className="flex justify-between items-start">
                        <div className="flex items-center gap-2">
@@ -279,11 +285,32 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           {renderSRSLevel(progress.srsLevel)}
                         </div>
                       </div>
-                      <div className="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 p-1.5 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                        <ChevronRight size={16} />
+                      
+                      <div className="flex items-center gap-2">
+                        {/* Actions for Custom Lessons in Suggestion View */}
+                        {isCustom && (
+                            <div className="flex items-center gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity relative z-10">
+                              <button 
+                                  onClick={(e) => onEditLesson(e, lesson)}
+                                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-full transition-colors"
+                              >
+                                  <Pencil size={14} />
+                              </button>
+                              <button 
+                                  onClick={(e) => onDeleteLesson(e, lesson.id)}
+                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors"
+                              >
+                                  <Trash2 size={14} />
+                              </button>
+                            </div>
+                        )}
+                        
+                        <div className="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 p-1.5 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                          <ChevronRight size={16} />
+                        </div>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -365,14 +392,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 const StatusIcon = status.icon;
                 const isReading = lesson.type === 'Reading';
                 const TypeIcon = isReading ? BookOpenText : MessageCircle;
+                const isCustom = customLessonIds.includes(lesson.id);
                 
                 const levelInfo = getLevelInfo(lesson.level);
 
                 return (
-                  <button
+                  <div
                     key={lesson.id}
                     onClick={() => onStartLesson(lesson)}
-                    className="w-full p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20 transition-all text-left group shadow-sm relative"
+                    className="w-full p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20 transition-all text-left group shadow-sm relative cursor-pointer"
                   >
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -403,8 +431,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           </div>
                         )}
                       </div>
+
+                      {/* Actions for Custom Lessons */}
+                      {isCustom && (
+                          <div className="flex items-center gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity relative z-10">
+                             <button 
+                                onClick={(e) => onEditLesson(e, lesson)}
+                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-full transition-colors"
+                             >
+                                <Pencil size={14} />
+                             </button>
+                             <button 
+                                onClick={(e) => onDeleteLesson(e, lesson.id)}
+                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors"
+                             >
+                                <Trash2 size={14} />
+                             </button>
+                          </div>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>

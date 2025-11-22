@@ -120,6 +120,22 @@ export const buildLessonPrompt = (
 
   let specificInstructions = "";
   
+  // CJK Specific Logic for Punctuation
+  let punctuationInstruction = "";
+  if (targetLang === 'zh' || targetLang === 'ja') {
+      punctuationInstruction = `
+      CRITICAL FOR ${targetLangName}: 
+      - Do NOT split punctuation marks (like 。, ？, ！, ，) into separate tokens.
+      - Always attach the punctuation to the preceding character or phrase.
+      - Example: ["你好。", "我是", "明。"] is CORRECT.
+      - Example: ["你好", "。", "我是", "明", "。"] is WRONG.
+      `;
+  } else {
+      punctuationInstruction = `
+      - Punctuation MUST be attached to the preceding word (e.g., ["Hello,", "world!"]).
+      `;
+  }
+  
   if (lessonType === 'Conversation') {
     specificInstructions = `
       Create conversation content (turns) following these rules:
@@ -128,7 +144,7 @@ export const buildLessonPrompt = (
        - QuestionTranslation: In ${explanationLang}.
        - TargetAnswer: Natural ${targetLangName} response.
        - TargetAnswerTranslation: In ${explanationLang}.
-       - Words: Split the TargetAnswer into logical words/tokens.
+       - Words: Split the TargetAnswer into logical words/tokens. ${punctuationInstruction}
     `;
   } else {
     // READING MODE
@@ -140,7 +156,7 @@ export const buildLessonPrompt = (
        - QuestionTranslation: MUST BE AN EMPTY STRING ("").
        - TargetAnswer: The sentence of the story in ${targetLangName}.
        - TargetAnswerTranslation: The translation of that sentence in ${explanationLang}.
-       - Words: Split the TargetAnswer into logical words/tokens.
+       - Words: Split the TargetAnswer into logical words/tokens. ${punctuationInstruction}
        - Ensure the flow of the story is logical from one sentence to the next.
     `;
   }

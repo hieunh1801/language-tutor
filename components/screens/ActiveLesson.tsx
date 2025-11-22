@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, BookOpenText, MessageCircle, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { ChatMessage, ConversationConfig, PuzzleData, Sender } from '../../types';
 import { ChatMessageList } from '../ChatMessageList';
@@ -30,6 +30,16 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
   const isReadingMode = config.lessonType === 'Reading';
   const [showReadingContext, setShowReadingContext] = useState(false);
   const [showTranslation, setShowTranslation] = useState(true);
+
+  // Auto-play audio when the turn changes (for Conversation questions)
+  useEffect(() => {
+    if (config.lessonType === 'Conversation' && currentPuzzle?.question) {
+        const timer = setTimeout(() => {
+            onPlayAudio(currentPuzzle.question);
+        }, 600); // Slight delay to allow UI transition
+        return () => clearTimeout(timer);
+    }
+  }, [currentTurnIndex, currentPuzzle, config.lessonType]); // Intentionally omitted onPlayAudio to avoid loops
 
   return (
     <div className="flex flex-col h-full relative bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
@@ -123,6 +133,7 @@ export const ActiveLesson: React.FC<ActiveLessonProps> = ({
             onComplete={onPuzzleComplete}
             isLastTurn={currentTurnIndex >= totalTurns - 1}
             prompt={isReadingMode ? undefined : undefined} 
+            onPlayAudio={onPlayAudio}
           />
         ) : (
           <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
