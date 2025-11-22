@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PuzzleData } from '../types';
 import { Check, ArrowRight, X, Wand2, RotateCcw } from 'lucide-react';
@@ -98,24 +97,24 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
       
       {/* Prompt Area (Only shows if provided explicitly, usually Reading mode) */}
       {prompt && (
-        <div className="mb-3 px-4 py-2 bg-slate-50 border-l-4 border-indigo-500 rounded-r-lg">
+        <div className="mb-3 px-4 py-2 bg-slate-50 dark:bg-slate-700 border-l-4 border-indigo-500 rounded-r-lg">
           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Yêu cầu</div>
-          <div className="text-sm font-medium text-slate-800 line-clamp-2">{prompt}</div>
+          <div className="text-sm font-medium text-slate-800 dark:text-slate-200 line-clamp-2">{prompt}</div>
         </div>
       )}
 
       {/* --- Answer Input Area --- */}
       <div className="mb-4">
         <div 
-          className={`min-h-[56px] w-full p-2 rounded-xl border flex flex-wrap gap-2 items-center transition-colors relative bg-white ${
-          status === 'correct' ? 'border-green-500 ring-1 ring-green-500 bg-green-50/30' : 
-          status === 'incorrect' ? 'border-red-400 ring-1 ring-red-400 bg-red-50/30' : 
-          'border-slate-200 hover:border-indigo-300 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500'
+          className={`min-h-[56px] w-full p-2 rounded-xl border flex flex-wrap gap-2 items-center transition-colors relative bg-white dark:bg-slate-700 ${
+          status === 'correct' ? 'border-green-500 ring-1 ring-green-500 bg-green-50/30 dark:bg-green-900/30' : 
+          status === 'incorrect' ? 'border-red-400 ring-1 ring-red-400 bg-red-50/30 dark:bg-red-900/30' : 
+          'border-slate-200 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-500 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500'
         }`}>
           
           {/* Placeholder Text */}
           {selectedWords.length === 0 && (
-            <span className="text-slate-400 text-sm absolute left-3 pointer-events-none select-none">
+            <span className="text-slate-400 dark:text-slate-500 text-sm absolute left-3 pointer-events-none select-none">
               Chọn từ bên dưới để ghép câu...
             </span>
           )}
@@ -125,7 +124,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
             <button
               key={word.id}
               onClick={() => handleDeselectWord(word)}
-              className="px-3 py-1.5 bg-indigo-50 text-indigo-700 border border-indigo-100 font-medium rounded-lg text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors animate-in zoom-in duration-200"
+              className="px-3 py-1.5 bg-indigo-50 text-indigo-700 border border-indigo-100 font-medium rounded-lg text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors animate-in zoom-in duration-200 dark:bg-indigo-900/50 dark:text-indigo-200 dark:border-indigo-800 dark:hover:bg-red-900/30 dark:hover:text-red-300 dark:hover:border-red-800"
             >
               {word.text}
             </button>
@@ -136,7 +135,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
              {selectedWords.length > 0 && status !== 'correct' && (
                 <button 
                     onClick={handleReset}
-                    className="p-1.5 text-slate-300 hover:text-slate-500 rounded-full hover:bg-slate-100 transition-colors"
+                    className="p-1.5 text-slate-300 hover:text-slate-500 dark:text-slate-500 dark:hover:text-slate-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
                     title="Xóa hết"
                 >
                     <RotateCcw size={14} />
@@ -149,12 +148,12 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
         <div className="flex justify-between items-center min-h-[24px] px-1 mt-1">
             <div className="text-sm font-medium">
                 {status === 'incorrect' && (
-                <span className="flex items-center gap-1 text-red-500 animate-in slide-in-from-left-2">
+                <span className="flex items-center gap-1 text-red-500 dark:text-red-400 animate-in slide-in-from-left-2">
                     <X size={14} /> Chưa chính xác
                 </span>
                 )}
                 {status === 'correct' && (
-                <span className="flex items-center gap-1 text-green-600 animate-in slide-in-from-left-2">
+                <span className="flex items-center gap-1 text-green-600 dark:text-green-400 animate-in slide-in-from-left-2">
                     <Check size={14} /> Chính xác!
                 </span>
                 )}
@@ -163,7 +162,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
             {status !== 'correct' && (
                 <button 
                 onClick={handleAutoArrange}
-                className="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-600 transition-colors font-medium"
+                className="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-600 dark:text-indigo-300 dark:hover:text-indigo-100 transition-colors font-medium"
                 >
                 <Wand2 size={12} /> Gợi ý
                 </button>
@@ -178,7 +177,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
             <button
               key={word.id}
               onClick={() => handleSelectWord(word)}
-              className="px-3 py-2 bg-slate-100 border border-transparent text-slate-600 font-medium rounded-lg text-sm hover:bg-white hover:border-indigo-200 hover:text-indigo-600 hover:shadow-sm active:scale-95 transition-all duration-150"
+              className="px-3 py-2 bg-slate-100 border border-transparent text-slate-600 font-medium rounded-lg text-sm hover:bg-white hover:border-indigo-200 hover:text-indigo-600 hover:shadow-sm active:scale-95 transition-all duration-150 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:hover:border-indigo-500 dark:hover:text-indigo-300"
             >
               {word.text}
             </button>
@@ -193,7 +192,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
             <button
               onClick={checkAnswer}
               disabled={selectedWords.length === 0}
-              className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-indigo-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all w-full justify-center"
+              className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-indigo-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all w-full justify-center dark:bg-slate-700 dark:disabled:bg-slate-800 dark:disabled:text-slate-600"
             >
               Kiểm tra
             </button>
@@ -201,7 +200,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ data, onComplete, isLast
         ) : (
           <button
             onClick={handleSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all animate-bounce ml-auto"
+            className="flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all animate-bounce ml-auto shadow-lg shadow-green-200 dark:shadow-none"
           >
             {isLastTurn ? 'Hoàn thành' : 'Tiếp tục'} <ArrowRight size={16} />
           </button>

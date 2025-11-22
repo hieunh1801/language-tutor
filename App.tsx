@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { AppState, ChatMessage, Sender, PuzzleData, ConversationConfig, SavedSession, VocabularyItem, Lesson, LessonProgress, LessonType, LessonLevel, LessonTone } from './types';
 import { generateLessonContent, explainGrammar } from './services/geminiService';
@@ -24,6 +23,7 @@ const STORAGE_KEY = 'korean_app_history_v1';
 const VOCAB_KEY = 'korean_app_vocab_v1';
 const CUSTOM_LESSONS_KEY = 'korean_app_custom_lessons_v1';
 const PROGRESS_KEY = 'korean_app_progress_v1';
+const THEME_KEY = 'korean_app_theme_v1';
 
 const SRS_INTERVALS = [0, 1, 3, 7, 14, 30];
 
@@ -31,6 +31,9 @@ const App: React.FC = () => {
   // Language State - Always Vietnamese for UI
   const nativeLang: NativeLanguage = 'vi';
   const [targetLang, setTargetLang] = useState<TargetLanguage>('ko');
+
+  // Theme State
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const [appState, setAppState] = useState<AppState>(AppState.INTRO);
   const [config, setConfig] = useState<ConversationConfig>({ 
@@ -73,6 +76,7 @@ const App: React.FC = () => {
   // Cloud Service
   const cloudService = useRef(new ZeroService());
 
+  // Load Data & Theme
   useEffect(() => {
     try {
       const storedHistory = localStorage.getItem(STORAGE_KEY);
@@ -86,10 +90,28 @@ const App: React.FC = () => {
 
       const storedProgress = localStorage.getItem(PROGRESS_KEY);
       if (storedProgress) setLessonProgress(JSON.parse(storedProgress));
+
+      const storedTheme = localStorage.getItem(THEME_KEY) as 'light' | 'dark';
+      if (storedTheme) {
+          setTheme(storedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          setTheme('dark');
+      }
     } catch (e) {
       console.error("Failed to load storage", e);
     }
   }, []);
+
+  // Apply Theme
+  useEffect(() => {
+      const root = window.document.documentElement;
+      if (theme === 'dark') {
+          root.classList.add('dark');
+      } else {
+          root.classList.remove('dark');
+      }
+      localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
 
   // Initialize Voices
   useEffect(() => {
@@ -97,15 +119,17 @@ const App: React.FC = () => {
       window.speechSynthesis.getVoices();
     };
     loadVoices();
-    // Chrome loads voices asynchronously
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
+
+  const toggleTheme = () => {
+      setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   const handleConfigureKey = async () => {
     if (window.aistudio?.openSelectKey) {
         try {
             await window.aistudio.openSelectKey();
-            // Clear error message after successful selection (implying user fixed it)
             setErrorMsg(null);
         } catch (e) {
             console.error("Failed to open key selector", e);
@@ -250,25 +274,19 @@ const App: React.FC = () => {
   };
 
   // --- Lesson Selection Handlers ---
-
-  // New: Handles clicking a lesson card -> Opens Preview Modal
   const handleSelectLesson = (lesson: Lesson) => {
       setSelectedLesson(lesson);
   };
 
-  // New: Triggered from Preview Modal -> Starts Interactive Mode
   const handleStartPractice = () => {
     if (!selectedLesson) return;
     initializeLesson(selectedLesson);
-    setSelectedLesson(null); // Close modal
+    setSelectedLesson(null);
   };
 
-  // New: Triggered from Preview Modal -> Starts Read/Passive Mode
   const handleStartReading = () => {
       if (!selectedLesson) return;
-      // Setup Read Mode
       setCurrentLessonId(selectedLesson.id);
-      // Update config for safe keeping, though ReadMode will use the lesson object
       setConfig({ 
         topic: selectedLesson.topic, 
         difficulty: selectedLesson.level as any,
@@ -280,7 +298,7 @@ const App: React.FC = () => {
       
       setConversationPlan(selectedLesson.turns);
       setAppState(AppState.READING);
-      setSelectedLesson(null); // Close modal
+      setSelectedLesson(null);
   };
 
   const initializeLesson = (lesson: Lesson) => {
@@ -298,7 +316,6 @@ const App: React.FC = () => {
     setErrorMsg(null);
     setCurrentLessonId(lesson.id);
 
-    // Initial Message Logic
     if (!lesson.type || lesson.type === 'Conversation') {
         const firstTurn = lesson.turns[0];
         const aiMsg: ChatMessage = {
@@ -320,7 +337,6 @@ const App: React.FC = () => {
       setMessages([]);
       setErrorMsg(null);
       
-      // Re-initialize logic
       if (config.lessonType === 'Conversation') {
           const firstTurn = conversationPlan[0];
           const aiMsg: ChatMessage = {
@@ -376,7 +392,6 @@ const App: React.FC = () => {
   };
 
   // --- Handlers ---
-
   const handleDeleteSession = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     const updated = savedSessions.filter(s => s.id !== id);
@@ -408,19 +423,16 @@ const App: React.FC = () => {
     type: LessonType, 
     tone: LessonTone
   ) => {
-    // Check API Key first
     if (window.aistudio?.hasSelectedApiKey) {
         const hasKey = await window.aistudio.hasSelectedApiKey();
         if (!hasKey && window.aistudio.openSelectKey) {
             await window.aistudio.openSelectKey();
-            // Wait a tick for env to update
         }
     }
 
     setIsGeneratingLib(true);
     setErrorMsg(null);
     try {
-      // Pass current languages, type, and tone
       const content = await generateLessonContent(topic, level, targetLang, nativeLang, lengthDescription, type, tone);
       const newLesson: Lesson = {
         id: crypto.randomUUID(),
@@ -446,15 +458,10 @@ const App: React.FC = () => {
     }
   };
 
-  // Reusable function to process lesson data (from File or String)
   const processImportedLessonData = (importedData: any) => {
-     // Validation: Check if object and has turns array
      if (importedData && typeof importedData === 'object' && Array.isArray(importedData.turns)) {
-        
-        // AUTO-DETECT TYPE logic if 'type' field is missing
         let detectedType: LessonType = importedData.type;
         if (!detectedType && importedData.turns.length > 0) {
-            // If the first turn has an empty question, it's likely a Reading lesson
             const firstTurn = importedData.turns[0];
             if (!firstTurn.question || firstTurn.question.trim() === '') {
                 detectedType = 'Reading';
@@ -465,13 +472,12 @@ const App: React.FC = () => {
 
         const newLesson: Lesson = {
             id: importedData.id || crypto.randomUUID(),
-            language: importedData.language || targetLang, // Fallback to current app target language
+            language: importedData.language || targetLang,
             type: detectedType || 'Conversation',
             title: importedData.title || 'Imported Lesson',
             description: importedData.description || 'No description',
             level: importedData.level || 'Level 1',
             tone: importedData.tone || 'Standard',
-            // Use title as fallback if topic is missing (common in raw AI JSON)
             topic: importedData.topic || importedData.title || 'General',
             turns: importedData.turns
         };
@@ -519,7 +525,6 @@ const App: React.FC = () => {
   };
 
   const handlePlayAudio = (text: string) => {
-    // Stop previous audio
     window.speechSynthesis.cancel();
 
     const targetLangConfig = TARGET_LANGUAGES.find(l => l.code === targetLang);
@@ -527,27 +532,19 @@ const App: React.FC = () => {
     
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = langCode;
-    utterance.rate = 0.9; // Slightly slower for better clarity
+    utterance.rate = 0.9;
     utterance.pitch = 1.0;
 
-    // Advanced Voice Selection
     const voices = window.speechSynthesis.getVoices();
-    
-    // 1. Filter by language
     const matchingVoices = voices.filter(v => 
         v.lang === langCode || 
         v.lang.replace('_', '-') === langCode || 
         v.lang.startsWith(langCode.split('-')[0])
     );
-
-    // 2. Prioritize "High Quality" voices (Google, Premium, Natural, Microsoft)
     const priorityKeywords = ['Google', 'Premium', 'Enhanced', 'Natural', 'Microsoft'];
-    
     let selectedVoice = matchingVoices.find(v => 
         priorityKeywords.some(keyword => v.name.includes(keyword))
     );
-
-    // 3. Fallback to first matching voice if no premium one found
     if (!selectedVoice && matchingVoices.length > 0) {
         selectedVoice = matchingVoices[0];
     }
@@ -560,7 +557,6 @@ const App: React.FC = () => {
   };
 
   const handleExplain = async (text: string) => {
-    // Check Key First
     if (window.aistudio?.hasSelectedApiKey) {
          const hasKey = await window.aistudio.hasSelectedApiKey();
          if (!hasKey) {
@@ -595,11 +591,10 @@ const App: React.FC = () => {
     });
     setMessages(session.messages);
     
-    // If the session has stored turns (new format), load them so we can restart
     if (session.turns) {
         setConversationPlan(session.turns);
     } else {
-        setConversationPlan([]); // Cannot restart legacy sessions safely
+        setConversationPlan([]); 
     }
 
     setAppState(AppState.COMPLETED);
@@ -607,7 +602,6 @@ const App: React.FC = () => {
   };
 
   // --- Render Helpers ---
-  
   const allLessons = [...customLessons, ...sampleLessons].filter(l => {
      const lLang = l.language || 'ko';
      return lLang === targetLang;
@@ -623,12 +617,10 @@ const App: React.FC = () => {
 
   const libraryList = allLessons.filter(lesson => !suggestionList.find(s => s.id === lesson.id));
 
-  // Helper to get the lesson object for ReadMode even if selectedLesson is null
   const getReadingLesson = (): Lesson => {
       const found = allLessons.find(l => l.id === currentLessonId);
       if (found) return found;
       
-      // Fallback for temporary or imported lessons that might not be in allLessons yet, or simply to be safe
       return {
           id: currentLessonId || 'temp-id',
           language: config.targetLang,
@@ -643,8 +635,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-slate-50 flex justify-center overflow-hidden font-sans">
-      <div className="w-full max-w-md bg-white h-full flex flex-col relative shadow-2xl">
+    <div className="h-screen w-full bg-slate-50 dark:bg-slate-900 flex justify-center overflow-hidden font-sans transition-colors duration-200">
+      <div className="w-full max-w-md bg-white dark:bg-slate-800 h-full flex flex-col relative shadow-2xl transition-colors duration-200">
         
         {/* Modals */}
         <CreateLessonModal 
@@ -709,9 +701,9 @@ const App: React.FC = () => {
 
         {/* Screens */}
         {appState === AppState.LOADING && (
-          <div className="h-full flex flex-col items-center justify-center p-4 text-center">
+          <div className="h-full flex flex-col items-center justify-center p-4 text-center dark:text-white">
             <Loader2 className="animate-spin text-indigo-600 mb-4" size={48} />
-            <h2 className="text-xl font-bold text-slate-800 mb-2">{t(nativeLang, 'generating')}</h2>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t(nativeLang, 'generating')}</h2>
           </div>
         )}
 
@@ -725,7 +717,9 @@ const App: React.FC = () => {
             vocabCount={vocabList.filter(v => v.language === targetLang).length}
             nativeLang={nativeLang}
             targetLang={targetLang}
-            onStartLesson={handleSelectLesson} // Updated: Opens Preview Modal
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onStartLesson={handleSelectLesson}
             onCreateClick={() => setShowCreateModal(true)}
             onDeleteLesson={handleDeleteLesson}
             onOpenHistory={() => setShowHistory(true)}

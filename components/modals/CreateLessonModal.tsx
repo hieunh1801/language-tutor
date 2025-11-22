@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Loader2, Upload, Lightbulb, MessageCircle, BookOpenText, Mic, Copy, FilePenLine, Settings2, ChevronDown } from 'lucide-react';
 import { NativeLanguage, t, TARGET_LANGUAGES, TargetLanguage } from '../../data/languages';
@@ -98,22 +97,22 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   const targetLangConfig = TARGET_LANGUAGES.find(l => l.code === targetLang);
 
   return (
-    <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-md flex flex-col p-4 animate-in slide-in-from-bottom-4 duration-300">
+    <div className="absolute inset-0 z-50 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md flex flex-col p-4 animate-in slide-in-from-bottom-4 duration-300">
       
       {/* Nested Modal for Manual Paste */}
       {showPasteModal && (
-        <div className="absolute inset-0 z-[60] bg-white p-6 flex flex-col animate-in fade-in duration-200">
+        <div className="absolute inset-0 z-[60] bg-white dark:bg-slate-800 p-6 flex flex-col animate-in fade-in duration-200">
              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <FilePenLine className="text-indigo-600" /> {t(nativeLang, 'paste_json_title')}
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <FilePenLine className="text-indigo-600 dark:text-indigo-400" /> {t(nativeLang, 'paste_json_title')}
                 </h3>
-                <button onClick={() => setShowPasteModal(false)} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200">
-                    <X size={20} className="text-slate-500" />
+                <button onClick={() => setShowPasteModal(false)} className="p-2 bg-slate-100 dark:bg-slate-700 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600">
+                    <X size={20} className="text-slate-500 dark:text-slate-400" />
                 </button>
             </div>
             <div className="flex-1 flex flex-col">
                 <textarea 
-                    className="flex-1 w-full p-4 border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-mono bg-slate-50"
+                    className="flex-1 w-full p-4 border border-slate-200 dark:border-slate-600 rounded-xl resize-none focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-mono bg-slate-50 dark:bg-slate-900 dark:text-slate-200"
                     placeholder={t(nativeLang, 'paste_placeholder')}
                     value={pastedJson}
                     onChange={(e) => setPastedJson(e.target.value)}
@@ -121,7 +120,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                 <div className="flex gap-3 mt-4">
                     <button 
                         onClick={() => setShowPasteModal(false)}
-                        className="flex-1 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50"
+                        className="flex-1 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600"
                     >
                         {t(nativeLang, 'cancel_btn')}
                     </button>
@@ -140,31 +139,31 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
       {/* Main Modal Header */}
       <div className="flex justify-between items-center mb-4 shrink-0">
         <div className="flex items-center gap-2">
-            <div className="bg-indigo-100 text-indigo-600 p-2 rounded-lg">
+            <div className="bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 p-2 rounded-lg">
                 <Sparkles size={18} />
             </div>
             <div>
-                <h3 className="text-lg font-bold text-slate-900 leading-tight">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
                     {t(nativeLang, 'create_lesson')}
                 </h3>
-                <p className="text-xs text-slate-500 flex items-center gap-1">
-                   Đang học: <span className="font-bold text-slate-700">{targetLangConfig?.label}</span>
+                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                   Đang học: <span className="font-bold text-slate-700 dark:text-slate-300">{targetLangConfig?.label}</span>
                 </p>
             </div>
         </div>
-        <button onClick={onClose} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
-          <X size={20} className="text-slate-500" />
+        <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-slate-700 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+          <X size={20} className="text-slate-500 dark:text-slate-400" />
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar pb-20">
         
         {/* 1. Type Select - Segmented Control */}
-        <div className="bg-slate-100 p-1 rounded-xl flex mb-4 shrink-0">
+        <div className="bg-slate-100 dark:bg-slate-700 p-1 rounded-xl flex mb-4 shrink-0">
             <button 
                 onClick={() => setType('Conversation')}
                 className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                    type === 'Conversation' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    type === 'Conversation' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                 }`}
             >
                 <MessageCircle size={14} /> {t(nativeLang, 'type_conversation')}
@@ -172,7 +171,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
             <button 
                 onClick={() => setType('Reading')}
                 className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                    type === 'Reading' ? 'bg-white text-pink-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    type === 'Reading' ? 'bg-white dark:bg-slate-600 text-pink-600 dark:text-pink-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                 }`}
             >
                 <BookOpenText size={14} /> {t(nativeLang, 'type_reading')}
@@ -185,7 +184,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
             type="text"
             autoFocus
             placeholder="Nhập chủ đề (VD: Đi chợ, Du lịch...)"
-            className="w-full px-4 py-3 rounded-xl border border-indigo-200 bg-indigo-50/30 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-base font-medium text-slate-800 placeholder:text-slate-400"
+            className="w-full px-4 py-3 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/30 dark:bg-slate-700 focus:bg-white dark:focus:bg-slate-600 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-base font-medium text-slate-800 dark:text-white placeholder:text-slate-400"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
            />
@@ -202,7 +201,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                     <select 
                         value={level} 
                         onChange={(e) => setLevel(e.target.value as LessonLevel)}
-                        className="w-full appearance-none pl-3 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                        className="w-full appearance-none pl-3 pr-8 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                     >
                         {LEVELS.map(l => {
                              const key = l === 'Level 1' ? 'lvl_1' : l === 'Level 2' ? 'lvl_2' : l === 'Level 3' ? 'lvl_3' : l === 'Level 4' ? 'lvl_4' : l === 'Level 5' ? 'lvl_5' : 'lvl_6';
@@ -222,7 +221,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                     <select 
                         value={tone} 
                         onChange={(e) => setTone(e.target.value as LessonTone)}
-                        className="w-full appearance-none pl-3 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                        className="w-full appearance-none pl-3 pr-8 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                     >
                         {TONES.map(tOption => {
                              const keyMap: Record<string, any> = { 'Standard': 'tone_standard', 'Polite': 'tone_polite', 'Casual': 'tone_casual', 'Humorous': 'tone_humorous', 'Emotional': 'tone_emotional' };
@@ -243,7 +242,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                          <select 
                             value={lengthOption} 
                             onChange={(e) => setLengthOption(e.target.value as LengthOption)}
-                            className="w-full appearance-none pl-3 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 capitalize"
+                            className="w-full appearance-none pl-3 pr-8 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 capitalize"
                         >
                             <option value="short">Ngắn (5-7 câu)</option>
                             <option value="medium">Vừa (7-10 câu)</option>
@@ -260,7 +259,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                             max="50"
                             value={customLength}
                             onChange={(e) => setCustomLength(parseInt(e.target.value) || 0)}
-                            className="w-20 pl-2 pr-1 py-2.5 rounded-xl border border-slate-200 text-center outline-none focus:ring-2 focus:ring-indigo-200 font-bold text-indigo-700 text-xs"
+                            className="w-20 pl-2 pr-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-center outline-none focus:ring-2 focus:ring-indigo-200 font-bold text-indigo-700 dark:text-indigo-300 text-xs"
                             placeholder="Số câu"
                         />
                     )}
@@ -278,7 +277,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                 <button
                   key={item}
                   onClick={() => setTopic(item)}
-                  className="text-[10px] px-2.5 py-1.5 bg-slate-50 border border-slate-100 rounded-md text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-colors font-medium"
+                  className="text-[10px] px-2.5 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-md text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900 hover:text-indigo-600 dark:hover:text-indigo-300 hover:border-indigo-100 dark:hover:border-indigo-800 transition-colors font-medium"
                 >
                   {item}
                 </button>
@@ -289,11 +288,11 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
       </div>
 
       {/* Fixed Footer Actions */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 z-10">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 z-10">
           <button
             onClick={handleCreate}
             disabled={isGenerating || !topic || (lengthOption === 'custom' && customLength < 1)}
-            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-indigo-200 mb-3 text-sm"
+            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none mb-3 text-sm"
           >
             {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
             {isGenerating ? t(nativeLang, 'generating') : t(nativeLang, 'create_lesson')}
@@ -302,7 +301,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
           <div className="flex items-center justify-between gap-2">
              <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex-1 py-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 flex items-center justify-center gap-1.5 transition-colors"
+              className="flex-1 py-2.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-300 flex items-center justify-center gap-1.5 transition-colors"
              >
                 <Upload size={14} /> JSON File
                 <input type="file" accept=".json" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
@@ -310,7 +309,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
 
              <button
               onClick={() => setShowPasteModal(true)}
-              className="flex-1 py-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 flex items-center justify-center gap-1.5 transition-colors"
+              className="flex-1 py-2.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-300 flex items-center justify-center gap-1.5 transition-colors"
              >
                 <FilePenLine size={14} /> {t(nativeLang, 'manual_import')}
              </button>
@@ -318,7 +317,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
              <button
               onClick={handleCopyPrompt}
               disabled={!topic}
-              className="px-3 py-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-indigo-600 disabled:opacity-50 transition-colors"
+              className="px-3 py-2.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 disabled:opacity-50 transition-colors"
               title={t(nativeLang, 'copy_prompt')}
              >
                 <Copy size={16} />
