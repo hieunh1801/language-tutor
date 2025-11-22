@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { AppState, ChatMessage, Sender, PuzzleData, ConversationConfig, SavedSession, VocabularyItem, Lesson, LessonProgress, LessonType, LessonLevel, LessonTone } from './types';
 import { generateLessonContent, explainGrammar } from './services/geminiService';
@@ -124,19 +125,6 @@ const App: React.FC = () => {
 
   const toggleTheme = () => {
       setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
-
-  const handleConfigureKey = async () => {
-    if (window.aistudio?.openSelectKey) {
-        try {
-            await window.aistudio.openSelectKey();
-            setErrorMsg(null);
-        } catch (e) {
-            console.error("Failed to open key selector", e);
-        }
-    } else {
-        alert("Tính năng chọn API Key chỉ khả dụng trong môi trường AI Studio.");
-    }
   };
 
   // --- SRS Logic ---
@@ -423,13 +411,6 @@ const App: React.FC = () => {
     type: LessonType, 
     tone: LessonTone
   ) => {
-    if (window.aistudio?.hasSelectedApiKey) {
-        const hasKey = await window.aistudio.hasSelectedApiKey();
-        if (!hasKey && window.aistudio.openSelectKey) {
-            await window.aistudio.openSelectKey();
-        }
-    }
-
     setIsGeneratingLib(true);
     setErrorMsg(null);
     try {
@@ -452,7 +433,7 @@ const App: React.FC = () => {
       alert(`${t(nativeLang, 'success_gen')}: "${content.title}"`);
     } catch (e) {
       console.error(e);
-      setErrorMsg(t(nativeLang, 'error_gen') + " (Hãy kiểm tra API Key)");
+      setErrorMsg(t(nativeLang, 'error_gen') + " (Lỗi hệ thống AI)");
     } finally {
       setIsGeneratingLib(false);
     }
@@ -557,17 +538,6 @@ const App: React.FC = () => {
   };
 
   const handleExplain = async (text: string) => {
-    if (window.aistudio?.hasSelectedApiKey) {
-         const hasKey = await window.aistudio.hasSelectedApiKey();
-         if (!hasKey) {
-             if (window.confirm("Tính năng này cần API Key. Bạn có muốn cấu hình ngay không?")) {
-                 await handleConfigureKey();
-             } else {
-                 return;
-             }
-         }
-    }
-
     setExplanationText('');
     setIsExplaining(true);
     setShowExplanation(true);
@@ -575,7 +545,7 @@ const App: React.FC = () => {
         const explanation = await explainGrammar(text, targetLang, nativeLang);
         setExplanationText(explanation);
     } catch (e) {
-        setExplanationText("Lỗi kết nối AI hoặc chưa có API Key.");
+        setExplanationText("Lỗi kết nối AI hoặc lỗi hệ thống.");
     } finally {
         setIsExplaining(false);
     }
@@ -727,7 +697,6 @@ const App: React.FC = () => {
             onOpenStats={() => setShowStats(true)}
             onOpenBackup={() => setShowBackup(true)}
             onSetTargetLang={setTargetLang}
-            onConfigureKey={handleConfigureKey}
           />
         )}
 

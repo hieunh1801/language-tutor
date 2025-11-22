@@ -1,5 +1,6 @@
+
 import React, { useState, useMemo } from 'react';
-import { GraduationCap, Plus, BrainCircuit, Zap, RefreshCcw, ChevronRight, Library, FolderOpen, Sparkles, Trash2, History, BookOpen, BarChart3, LayoutGrid, Globe, Database, MessageCircle, BookOpenText, Search, X, Filter, Key, Clock, ChevronDown, Moon, Sun } from 'lucide-react';
+import { GraduationCap, Plus, BrainCircuit, Zap, RefreshCcw, ChevronRight, Library, FolderOpen, Sparkles, Trash2, History, BookOpen, BarChart3, LayoutGrid, Globe, Database, MessageCircle, BookOpenText, Search, X, Filter, Clock, ChevronDown, Moon, Sun } from 'lucide-react';
 import { Lesson, LessonProgress, LessonLevel } from '../../types';
 import { NativeLanguage, TargetLanguage, t, TARGET_LANGUAGES } from '../../data/languages';
 
@@ -22,7 +23,6 @@ interface DashboardProps {
   onOpenStats: () => void;
   onOpenBackup: () => void;
   onSetTargetLang: (lang: TargetLanguage) => void;
-  onConfigureKey: () => void;
 }
 
 type FilterType = 'ALL' | 'Conversation' | 'Reading' | 'Beginner' | 'Intermediate' | 'Advanced';
@@ -45,8 +45,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onOpenVocab,
   onOpenStats,
   onOpenBackup,
-  onSetTargetLang,
-  onConfigureKey
+  onSetTargetLang
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterType>('ALL');
@@ -167,15 +166,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </select>
             </div>
 
-            {/* Key Config Button */}
-            <button
-                onClick={onConfigureKey}
-                className="p-2 bg-slate-100 dark:bg-slate-700 rounded-full text-slate-500 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-600 transition-colors"
-                title="API Key"
-            >
-                <Key size={18} />
-            </button>
-
             {/* Create Button (Icon Only) */}
             <button
               onClick={onCreateClick}
@@ -190,7 +180,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {errorMsg && (
         <div className="mx-4 mt-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2.5 rounded-lg text-xs border border-red-100 dark:border-red-800 flex justify-between items-center">
           <span className="font-medium">{errorMsg}</span>
-          <button onClick={onConfigureKey} className="font-bold underline ml-2 shrink-0">Cấu hình</button>
         </div>
       )}
 
