@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect, useCallback } from 'react';
 import { SavedSession, VocabularyItem, Lesson, LessonProgress, TargetLanguage } from '../types';
 
@@ -148,15 +149,72 @@ export const useAppData = () => {
 
   const restoreBackupData = useCallback((data: any) => {
     if (data.history && data.vocab && data.customLessons && data.progress) {
-      setSavedSessions(data.history);
-      setVocabList(data.vocab);
-      setCustomLessons(data.customLessons);
-      setLessonProgress(data.progress);
+      
+      // 1. Merge History (Unique by ID)
+      setSavedSessions(prev => {
+        const existingIds = new Set(prev.map(s => s.id));
+        const newSessions = (data.history as SavedSession[]).filter(s => !existingIds.has(s.id));
+        const merged = [...newSessions, ...prev].sort((a, b) => b.timestamp - a.timestamp);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        return merged;
+      });
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data.history));
-      localStorage.setItem(VOCAB_KEY, JSON.stringify(data.vocab));
-      localStorage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(data.customLessons));
-      localStorage.setItem(PROGRESS_KEY, JSON.stringify(data.progress));
+      // 2. Merge Vocabulary (Smart Merge: Max count, Max timestamp)
+      setVocabList(prev => {
+        const vocabMap = new Map<string, VocabularyItem>();
+        prev.forEach(v => vocabMap.set(`${v.text}-${v.language}`, v));
+        
+        (data.vocab as VocabularyItem[]).forEach(v => {
+            const key = `${v.text}-${v.language}`;
+            const existing = vocabMap.get(key);
+            if (existing) {
+                vocabMap.set(key, {
+                    ...existing,
+                    count: Math.max(existing.count, v.count),
+                    lastSeen: Math.max(existing.lastSeen, v.lastSeen)
+                });
+            } else {
+                vocabMap.set(key, v);
+            }
+        });
+
+        const merged = Array.from(vocabMap.values()).sort((a, b) => b.count - a.count);
+        localStorage.setItem(VOCAB_KEY, JSON.stringify(merged));
+        return merged;
+      });
+
+      // 3. Merge Custom Lessons (Imported updates overwrite local if ID matches)
+      setCustomLessons(prev => {
+          const lessonMap = new Map<string, Lesson>();
+          prev.forEach(l => lessonMap.set(l.id, l));
+          
+          (data.customLessons as Lesson[]).forEach(l => lessonMap.set(l.id, l));
+          
+          const merged = Array.from(lessonMap.values());
+          localStorage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(merged));
+          return merged;
+      });
+
+      // 4. Merge Progress (Smart Merge: Latest Study Time wins)
+      setLessonProgress(prev => {
+          const merged = { ...prev };
+          const importedProgress = data.progress as Record<string, LessonProgress>;
+          
+          Object.values(importedProgress).forEach(p => {
+              const existing = merged[p.lessonId];
+              if (!existing) {
+                  merged[p.lessonId] = p;
+              } else {
+                  // Keep the record with the most recent study time
+                  if (p.lastStudied > existing.lastStudied) {
+                      merged[p.lessonId] = p;
+                  }
+              }
+          });
+          localStorage.setItem(PROGRESS_KEY, JSON.stringify(merged));
+          return merged;
+      });
+
       return true;
     }
     return false;

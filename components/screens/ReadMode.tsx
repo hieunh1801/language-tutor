@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { X, PlayCircle, PauseCircle, Eye, EyeOff, Volume2, BookOpenText } from 'lucide-react';
 import { Lesson } from '../../types';
@@ -13,6 +14,7 @@ export const ReadMode: React.FC<ReadModeProps> = ({ lesson, onExit, nativeLang }
   const [isPlaying, setIsPlaying] = useState(false);
   const [showTranslation, setShowTranslation] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
   
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const isPlayingRef = useRef(false); // Track playing state for callbacks
@@ -39,6 +41,7 @@ export const ReadMode: React.FC<ReadModeProps> = ({ lesson, onExit, nativeLang }
   const playAudio = (text: string, index: number, autoContinue: boolean = false) => {
     window.speechSynthesis.cancel();
     setActiveIndex(index);
+    setActiveWordIndex(null);
     
     const utterance = new SpeechSynthesisUtterance(text);
     const targetVoice = getVoice(lesson.language);
@@ -47,7 +50,34 @@ export const ReadMode: React.FC<ReadModeProps> = ({ lesson, onExit, nativeLang }
     utterance.lang = TARGET_LANGUAGES.find(l => l.code === lesson.language)?.voice || 'en-US';
     utterance.rate = 0.85; // Slower for reading mode
 
+    // Word Boundary Event for Highlighting
+    utterance.onboundary = (event) => {
+        if (event.name === 'word') {
+            const charIndex = event.charIndex;
+            const words = lesson.turns[index].words;
+            
+            // Heuristic to find which word corresponds to the charIndex
+            // We accumulate lengths of words to find the range
+            let currentLength = 0;
+            // Determine spacer based on language (CJK usually has no spaces, others have space)
+            const isCompactLang = ['zh', 'ja'].includes(lesson.language);
+            const separatorLen = isCompactLang ? 0 : 1; 
+
+            for (let i = 0; i < words.length; i++) {
+                const wordLen = words[i].length;
+                // Check if charIndex falls within this word's range (start to start + length)
+                // We add a buffer for the separator
+                if (charIndex >= currentLength && charIndex < currentLength + wordLen + separatorLen) {
+                    setActiveWordIndex(i);
+                    break;
+                }
+                currentLength += wordLen + separatorLen;
+            }
+        }
+    };
+
     utterance.onend = () => {
+      setActiveWordIndex(null);
       if (autoContinue && isPlayingRef.current && index < lesson.turns.length - 1) {
         // Small delay between sentences
         setTimeout(() => {
@@ -73,6 +103,7 @@ export const ReadMode: React.FC<ReadModeProps> = ({ lesson, onExit, nativeLang }
       setIsPlaying(false);
       isPlayingRef.current = false;
       setActiveIndex(null);
+      setActiveWordIndex(null);
     } else {
       setIsPlaying(true);
       isPlayingRef.current = true;
@@ -144,23 +175,39 @@ export const ReadMode: React.FC<ReadModeProps> = ({ lesson, onExit, nativeLang }
                  )}
 
                  {/* Main Sentence (Target Answer) */}
-                 <div className="flex gap-3">
+                 <div className="flex gap-3 items-start">
                     <button 
                         onClick={() => handleManualPlay(idx)}
-                        className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-0.5 transition-colors ${
+                        className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 transition-colors ${
                             activeIndex === idx ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
                         }`}
                     >
                         <Volume2 size={14} />
                     </button>
-                    <div>
-                        <p className={`text-lg md:text-xl leading-relaxed font-medium transition-colors ${
-                            activeIndex === idx ? 'text-indigo-900 dark:text-indigo-200' : 'text-slate-800 dark:text-slate-100'
-                        }`}>
-                            {turn.targetAnswer}
-                        </p>
+                    <div className="flex-1">
+                        {/* Word-by-word Rendering */}
+                        <div className="flex flex-wrap gap-x-1.5 items-baseline leading-relaxed">
+                            {turn.words.map((word, wordIdx) => {
+                                const isActive = activeIndex === idx && activeWordIndex === wordIdx;
+                                return (
+                                    <span 
+                                        key={wordIdx}
+                                        className={`text-lg md:text-xl transition-colors duration-200 px-1 -mx-1 rounded ${
+                                            isActive 
+                                            ? 'text-indigo-700 dark:text-indigo-200 bg-indigo-200/50 dark:bg-indigo-500/30 font-bold' 
+                                            : activeIndex === idx 
+                                                ? 'text-indigo-900 dark:text-indigo-100' 
+                                                : 'text-slate-800 dark:text-slate-100'
+                                        }`}
+                                    >
+                                        {word}
+                                    </span>
+                                );
+                            })}
+                        </div>
+                        
                         {showTranslation && (
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-light">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-light border-t border-slate-100 dark:border-slate-700/50 pt-2">
                                 {turn.targetAnswerTranslation}
                             </p>
                         )}

@@ -188,6 +188,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
              
              {/* Feature Grid */}
              <div>
+                <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider mb-3 px-1">
+                   <LayoutGrid size={14} /> {t(nativeLang, 'utils')}
+                </div>
                 <div className="grid grid-cols-4 gap-2">
                   <button onClick={onOpenStats} className="flex flex-col items-center justify-center py-3 px-1 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all group h-24">
                     <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform"><BarChart3 size={16} /></div>
